@@ -297,6 +297,12 @@ html, body { overflow-x: clip; }
 .rows .card-top { min-height: 124px; }
 .rows .card-top[data-compact] { min-height: 84px; }
 
+/* skills: stack in a pile, then fan out */
+@media (prefers-reduced-motion: no-preference) {
+  #skills .skill.stag { transform: translate(var(--sx, 0), var(--sy, 0)) rotate(var(--r, 0deg)) scale(.86); }
+  #skills.in .skill.stag { opacity: 1; transform: none; transition: opacity .35s ease, transform .75s cubic-bezier(.2, .9, .3, 1.15); transition-delay: calc(var(--i, 0) * 38ms + 150ms); }
+}
+
 </style>
 <script>try{var t=localStorage.getItem('theme-mac');if(t==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
@@ -712,7 +718,7 @@ html, body { overflow-x: clip; }
       w.setAttribute('data-anim', p[1]);
       w.querySelectorAll(p[2]).forEach(function (el, i) {
         el.classList.add('stag');
-        el.style.setProperty('--i', Math.min(i, p[0] === 'skills' ? 16 : 9));
+        el.style.setProperty('--i', Math.min(i, p[0] === 'skills' ? 40 : 9));
       });
     });
     var rv = new IntersectionObserver(function (entries) {
@@ -798,6 +804,29 @@ html, body { overflow-x: clip; }
       b.addEventListener('click', function () { panel.hidden = true; grid.querySelectorAll('.skill').forEach(function (s) { s.classList.remove('sel'); }); });
     });
   })();
+
+  /* skills stack up in a pile, then fan out into place */
+  (function () {
+    var grid = document.getElementById('skill-grid');
+    if (!grid || reduce) return;
+    function pile() {
+      var cards = grid.querySelectorAll('.skill:not([hidden])');
+      if (!cards.length) return;
+      var gw = grid.clientWidth;
+      cards.forEach(function (c, i) {
+        var px = (gw - c.offsetWidth) / 2;
+        c.style.setProperty('--sx', (px - c.offsetLeft) + 'px');
+        c.style.setProperty('--sy', (-c.offsetTop - 8) + 'px');
+        c.style.setProperty('--r', (((i * 37) % 17) - 8) + 'deg');
+      });
+    }
+    pile();
+    window.addEventListener('resize', pile);
+    window.addEventListener('load', pile);
+    document.querySelectorAll('#skill-filters button').forEach(function (b) {
+      b.addEventListener('click', function () { setTimeout(pile, 0); });
+    });
+  })();
 })();
 
 </script>
@@ -809,8 +838,6 @@ html, body { overflow-x: clip; }
   var cards = document.querySelectorAll('#skill-grid .skill');
   sBtns.forEach(function (b) {
     var f = b.getAttribute('data-s');
-    var n = f === 'all' ? cards.length : document.querySelectorAll('#skill-grid [data-cat="' + f + '"]').length;
-    var c = document.createElement('span'); c.className = 'ct'; c.textContent = n; b.appendChild(c);
     b.addEventListener('click', function () {
       sBtns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
       cards.forEach(function (k) { k.hidden = !(f === 'all' || k.getAttribute('data-cat') === f); });
