@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jayati Ghori</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: an engineering spec sheet. Mono ledger rows carry the numbers, a sticky index bar carries the nav, work is listed as rows you can filter. */
+:root {
+  --bg: #EDF0F3;
+  --surface: #F8FAFB;
+  --ink: #101823;
+  --muted: #556170;
+  --line: #CBD3DB;
+  --accent: #0B6E6E;
+  --accent-ink: #FFFFFF;
+  --f-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E141B;
+    --surface: #151D27;
+    --ink: #E7ECF1;
+    --muted: #97A3B1;
+    --line: #27323F;
+    --accent: #4DC0B0;
+    --accent-ink: #06201C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E141B;
+  --surface: #151D27;
+  --ink: #E7ECF1;
+  --muted: #97A3B1;
+  --line: #27323F;
+  --accent: #4DC0B0;
+  --accent-ink: #06201C;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  z-index: 10;
+}
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.wrap { max-width: 1040px; margin: 0 auto; }
+.mono { font-family: var(--f-mono); }
+
+/* top bar */
+.bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 9;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.brand { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; text-decoration: none; letter-spacing: -0.01em; }
+.nav { display: flex; align-items: center; gap: 22px; font-family: var(--f-mono); font-size: 0.8rem; }
+.nav a { text-decoration: none; color: var(--muted); }
+.nav a:hover { color: var(--ink); }
+.toggle {
+  font-family: var(--f-mono); font-size: 0.75rem; color: var(--ink); background: transparent;
+  border: 1px solid var(--line); border-radius: 4px; padding: 5px 10px; cursor: pointer;
+}
+.toggle:hover { border-color: var(--accent); }
+@media (max-width: 640px) { .nav a { display: none; } }
+
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 56px; padding-block: 72px 64px; align-items: end; }
+.eyebrow { font-family: var(--f-mono); font-size: 0.78rem; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 20px; }
+h1 {
+  font-family: var(--f-display); font-weight: 700; font-size: clamp(2.6rem, 6.4vw, 4.6rem);
+  line-height: 1.02; letter-spacing: -0.03em; margin: 0 0 24px; text-wrap: balance;
+}
+.lede { max-width: 56ch; color: var(--muted); font-size: 1.1rem; margin: 0 0 28px; }
+.links { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn {
+  font-family: var(--f-mono); font-size: 0.82rem; text-decoration: none; padding: 10px 16px; border-radius: 4px;
+  border: 1px solid var(--ink);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.ledger { border-top: 2px solid var(--ink); margin: 0; padding: 0; list-style: none; }
+.ledger li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.ledger .k { font-family: var(--f-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.ledger .v { font-family: var(--f-mono); font-size: 1.35rem; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.ledger .n { grid-column: 1 / -1; font-size: 0.88rem; color: var(--muted); }
+@media (max-width: 820px) { .hero { grid-template-columns: minmax(0, 1fr); gap: 40px; padding-block: 48px 48px; } }
+
+/* sections */
+section { padding-block: 56px; border-top: 1px solid var(--line); }
+.sec-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: 32px; }
+h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.9rem; letter-spacing: -0.02em; margin: 0; }
+.sec-note { font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); }
+
+/* featured */
+.feature { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 40px; padding-block: 36px; border-top: 1px solid var(--line); }
+.feature:first-of-type { border-top: 2px solid var(--ink); }
+.feature h3 { font-family: var(--f-display); font-size: 1.55rem; letter-spacing: -0.015em; margin: 0 0 6px; line-height: 1.15; }
+.meta { font-family: var(--f-mono); font-size: 0.76rem; color: var(--muted); margin: 0 0 16px; }
+.feature p { margin: 0 0 14px; max-width: 62ch; }
+.feature ul { margin: 0 0 16px; padding-left: 1.1em; max-width: 62ch; }
+.feature li { margin-bottom: 8px; }
+.feature li::marker { color: var(--accent); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.chips li { font-family: var(--f-mono); font-size: 0.72rem; border: 1px solid var(--line); border-radius: 3px; padding: 2px 8px; color: var(--muted); }
+.spec { margin: 0; align-self: start; background: var(--surface); border: 1px solid var(--line); padding: 8px 18px; }
+.spec div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.spec div:last-child { border-bottom: 0; }
+.spec dt { font-size: 0.86rem; color: var(--muted); min-width: 0; }
+.spec dd { margin: 0; font-family: var(--f-mono); font-size: 0.95rem; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+.textlink { display: inline-block; margin-top: 14px; font-family: var(--f-mono); font-size: 0.8rem; color: var(--accent); }
+@media (max-width: 820px) { .feature { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+
+/* filter + project rows */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.filters button {
+  font-family: var(--f-mono); font-size: 0.78rem; background: transparent; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 4px; padding: 6px 12px; cursor: pointer;
+}
+.filters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.rows { border-top: 2px solid var(--ink); }
+.row { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 8px 28px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.row .tag { font-family: var(--f-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding-top: 4px; }
+.row h3 { font-family: var(--f-display); font-size: 1.15rem; margin: 0 0 4px; letter-spacing: -0.01em; }
+.row p { margin: 0 0 10px; color: var(--muted); max-width: 64ch; font-size: 0.98rem; }
+@media (max-width: 640px) { .row { grid-template-columns: minmax(0, 1fr); } }
+
+/* experience */
+.job { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 8px 28px; padding: 28px 0; border-top: 1px solid var(--line); }
+.job:first-of-type { border-top: 2px solid var(--ink); }
+.job .when { font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); padding-top: 5px; }
+.job h3 { font-family: var(--f-display); font-size: 1.25rem; margin: 0; letter-spacing: -0.01em; }
+.job .org { color: var(--muted); margin: 2px 0 12px; font-size: 0.95rem; }
+.job ul { margin: 0; padding-left: 1.1em; max-width: 66ch; }
+.job li { margin-bottom: 7px; }
+.job li::marker { color: var(--accent); }
+@media (max-width: 640px) { .job { grid-template-columns: minmax(0, 1fr); } }
+
+/* skills + education */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 32px 40px; }
+.cols h3 { font-family: var(--f-mono); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); margin: 0 0 12px; font-weight: 500; }
+.cols p { margin: 0; }
+.edu-item { padding: 0 0 22px; }
+.edu-item h4 { font-family: var(--f-display); font-size: 1.1rem; margin: 0; }
+.edu-item .meta { margin: 2px 0 8px; }
+.edu-item p { color: var(--muted); font-size: 0.95rem; }
+.certs { list-style: none; margin: 0; padding: 0; }
+.certs li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 0.97rem; }
+.certs li span { display: block; font-family: var(--f-mono); font-size: 0.74rem; color: var(--muted); }
+
+footer { border-top: 1px solid var(--line); padding-block: 40px 56px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-family: var(--f-mono); font-size: 0.8rem; color: var(--muted); }
+footer a { color: var(--accent); }
+@media (prefers-reduced-motion: no-preference) { .btn, .toggle, .nav a { transition: border-color .15s, color .15s; } }
+</style>
+
+<style>html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">Jayati Ghori</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#work">Work</a>
+      <a href="#experience">Experience</a>
+      <a href="#skills">Skills</a>
+      <a href="#education">Education</a>
+      <button class="toggle" id="theme-toggle" type="button" aria-label="Switch color theme">Theme</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+  <div class="hero">
+    <div>
+      <p class="eyebrow">MS Computer Science · Arizona State University · May 2027</p>
+      <h1>Systems that run fast. Models that ship.</h1>
+      <p class="lede">I'm Jayati, a graduate student working toward AI engineering. I build end to end: a C++ matching engine, serverless machine learning pipelines on AWS, and a deployed size-recommendation model.</p>
+      <div class="links">
+        <a class="btn primary" href="#work">See the work</a>
+        <a class="btn" href="https://github.com/Jghori1" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <ul class="ledger" aria-label="Headline numbers">
+      <li><span class="k">Matching throughput</span><span class="v">9.56M / sec</span><span class="n">Limit order book engine in C++20</span></li>
+      <li><span class="k">Order cancel latency</span><span class="v">350–440 ns</span><span class="n">Flat across up to 100,000 price levels</span></li>
+      <li><span class="k">Macro-F1</span><span class="v">0.5088</span><span class="n">Size recommender, against a 0.2831 baseline</span></li>
+      <li><span class="k">Autoscaling range</span><span class="v">0 → 15 EC2</span><span class="n">Driven by live SQS queue depth</span></li>
+    </ul>
+  </div>
+
+  <section id="work">
+    <div class="sec-head">
+      <h2>Selected work</h2>
+      <span class="sec-note">Four projects, newest first</span>
+    </div>
+
+    <article class="feature">
+      <div>
+        <h3>Limit Order Book Matching Engine</h3>
+        <p class="meta">2026 · Individual project · C++20</p>
+        <p>A price-time priority matching engine modeled on how real exchanges work, built to be fast and to stay memory safe while doing it.</p>
+        <ul>
+          <li>Cancels an order in constant time by caching real <code>std::map</code> iterators in a custom <code>LevelHandle</code> union, which avoids a logarithmic re-descent into the book.</li>
+          <li>Wrote <code>MemoryPool&lt;T&gt;</code>, a slab allocator with an intrusive free list. Allocation took 1.0 ns against 20.5 ns for <code>std::list</code>.</li>
+          <li>Replaced 8-byte pointers with 4-byte pool indices in an intrusive doubly linked order queue, lifting throughput from about 8.8M to 9.56M orders per second.</li>
+          <li>Prices are <code>int64</code> ticks, never floating point, so rounding error cannot creep into matching.</li>
+          <li>Found that the compiler was eliminating dead code in a micro-benchmark, then replaced it with a high-churn traversal that measures real work.</li>
+        </ul>
+        <ul class="chips" aria-label="Technologies"><li>C++20</li><li>CMake</li><li>ASan</li><li>UBSan</li><li>Custom allocators</li></ul>
+        <a class="textlink" href="https://github.com/Jghori1/limit-order-book" target="_blank" rel="noopener">github.com/Jghori1/limit-order-book →</a>
+      </div>
+      <dl class="spec">
+        <div><dt>Throughput</dt><dd>9.56M orders/sec</dd></div>
+        <div><dt>Cancel latency</dt><dd>~350–440 ns</dd></div>
+        <div><dt>Allocation speedup</dt><dd>21.2×</dd></div>
+        <div><dt>Test suite</dt><dd>37 cases</dd></div>
+        <div><dt>Sanitizer errors</dt><dd>0</dd></div>
+      </dl>
+    </article>
+
+    <article class="feature">
+      <div>
+        <h3>AI Size &amp; Fit Recommender</h3>
+        <p class="meta">2026 · Individual project · Python, scikit-learn, FastAPI</p>
+        <p>Predicts whether a clothing size will fit, small or large, to cut the returns that come from sizes that vary between brands. Built from raw data to a live web app.</p>
+        <ul>
+          <li>Trained a 300-tree Random Forest on the RentTheRunway dataset: 192K transactions, 105K users and 5.8K items.</li>
+          <li>Reached 0.5088 macro-F1 against a 0.2831 baseline, a 79.7% gain. Macro-F1 is the target because 73.8% of rows are "fit", which makes accuracy misleading.</li>
+          <li>Split by user with <code>GroupShuffleSplit</code> so no person appears in both train and test, and used balanced class weights for the imbalance.</li>
+          <li>Engineered 18 features. The strongest was <code>size_delta</code>, the distance from an item's typical fitting size, which showed that item history predicts fit better than body measurements.</li>
+          <li>Served predictions through a FastAPI backend and deployed a Streamlit Cloud app that returns a ranked size with confidence.</li>
+        </ul>
+        <ul class="chips" aria-label="Technologies"><li>Python</li><li>scikit-learn</li><li>pandas</li><li>FastAPI</li><li>Streamlit</li></ul>
+        <a class="textlink" href="https://github.com/Jghori1/ai-size-recommender-v2" target="_blank" rel="noopener">github.com/Jghori1/ai-size-recommender-v2 →</a>
+      </div>
+      <dl class="spec">
+        <div><dt>Macro-F1</dt><dd>0.5088</dd></div>
+        <div><dt>Baseline</dt><dd>0.2831</dd></div>
+        <div><dt>Gain over baseline</dt><dd>+79.7%</dd></div>
+        <div><dt>Accuracy</dt><dd>0.6782</dd></div>
+        <div><dt>Transactions</dt><dd>192K</dd></div>
+      </dl>
+    </article>
+
+    <article class="feature">
+      <div>
+        <h3>Elastic Face Recognition: IaaS to Serverless to Edge</h3>
+        <p class="meta">Fall 2025 · CSE 546 Cloud Computing, ASU · Individual · Python, AWS</p>
+        <p>One face recognition pipeline rebuilt three ways to compare how each cloud model behaves.</p>
+        <ul>
+          <li><strong>IaaS.</strong> A three-tier app on raw EC2, S3 and SQS. I wrote the autoscaler myself instead of using AWS Auto Scaling, and it scales the app tier from 0 to 15 instances from live queue depth, scaling in right away when idle.</li>
+          <li><strong>Serverless.</strong> Moved the pipeline to AWS Lambda, chaining MTCNN face detection and FaceNet recognition (PyTorch) through SQS. It completed every request with an average latency under three seconds.</li>
+          <li><strong>Edge.</strong> Ran AWS IoT Greengrass on an EC2 instance as an emulated gateway. Detection runs locally and talks over MQTT, while recognition stays in Lambda.</li>
+        </ul>
+        <ul class="chips" aria-label="Technologies"><li>AWS EC2</li><li>S3</li><li>SQS</li><li>Lambda</li><li>IoT Greengrass</li><li>MQTT</li><li>PyTorch</li></ul>
+      </div>
+      <dl class="spec">
+        <div><dt>Autoscale range</dt><dd>0 → 15 EC2</dd></div>
+        <div><dt>Serverless completions</dt><dd>100%</dd></div>
+        <div><dt>Average latency</dt><dd>&lt; 3 s</dd></div>
+        <div><dt>Deployment models</dt><dd>3</dd></div>
+      </dl>
+    </article>
+
+    <article class="feature">
+      <div>
+        <h3>BabyCam</h3>
+        <p class="meta">Dec 2023 – Apr 2024 · Internship project at Escrow Infotech · Individual · Kotlin, Android</p>
+        <p>An Android app that turns two phones into a baby monitor with no router in between. One phone is the camera, the other is the parent's monitor.</p>
+        <ul>
+          <li>Connected the devices peer to peer over Wi-Fi Direct, with a discovery manager that lets the parent phone scan for the camera phone and connect to it.</li>
+          <li>Streamed live video over continuous UDP socket communication, converting frames to byte arrays and displaying them as bitmaps.</li>
+          <li>Let the parent phone record the live feed to internal storage through the Android Storage APIs.</li>
+          <li>Structured the app with MVVM and Jetpack Compose, and handled camera, location and storage permissions with error handling for denied requests.</li>
+          <li>Designed a clean server shutdown so disconnecting never crashes the app.</li>
+        </ul>
+        <ul class="chips" aria-label="Technologies"><li>Kotlin</li><li>Jetpack Compose</li><li>MVVM</li><li>Wi-Fi Direct</li><li>UDP sockets</li><li>Android Studio</li></ul>
+      </div>
+      <dl class="spec">
+        <div><dt>Devices per session</dt><dd>2</dd></div>
+        <div><dt>Connection</dt><dd>Wi-Fi Direct</dd></div>
+        <div><dt>Video transport</dt><dd>UDP sockets</dd></div>
+        <div><dt>Architecture</dt><dd>MVVM</dd></div>
+      </dl>
+    </article>
+  </section>
+
+  <section id="more">
+    <div class="sec-head">
+      <h2>More projects</h2>
+      <span class="sec-note">Course and internship work</span>
+    </div>
+    <div class="filters" role="group" aria-label="Filter projects">
+      <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="data" aria-pressed="false">Data</button>
+      <button type="button" data-f="mobile" aria-pressed="false">Mobile</button>
+      <button type="button" data-f="software" aria-pressed="false">Software</button>
+      <button type="button" data-f="security" aria-pressed="false">Security</button>
+    </div>
+    <div class="rows" id="rows">
+      <div class="row" data-c="data">
+        <div class="tag">Spring 2026 · Data</div>
+        <div>
+          <h3>NYC Taxi Spatial Analysis</h3>
+          <p>Distributed range queries and spatial joins over NYC taxi pickup and drop-off data, run with Spark SQL in a Docker environment. CSE 511, Data Processing at Scale.</p>
+          <ul class="chips"><li>Apache Spark</li><li>Spark SQL</li><li>Docker</li></ul>
+        </div>
+      </div>
+      <div class="row" data-c="data">
+        <div class="tag">Spring 2026 · Data</div>
+        <div>
+          <h3>Large-Scale Reddit Data Pipeline</h3>
+          <p>Designed a schema and loaded a real Reddit dataset of submissions, comments, authors and subreddits into PostgreSQL, then wrote optimized aggregation and join queries over the large tables.</p>
+          <ul class="chips"><li>PostgreSQL</li><li>SQL</li></ul>
+        </div>
+      </div>
+      <div class="row" data-c="software">
+        <div class="tag">Fall 2025 · Software</div>
+        <div>
+          <h3>Agile Requirement Management System</h3>
+          <p>A team-built, three-tier Scrum tool for managing projects, sprints and tasks across Scrum Master, Product Owner and Developer roles. I contributed to a requirements spec with more than 15 use cases, a UML design document, Figma prototypes and a working end-to-end prototype. CSE/SER 515.</p>
+          <ul class="chips"><li>Java</li><li>Javalin</li><li>MySQL</li><li>JDBC</li><li>JUnit 5</li><li>Figma</li></ul>
+        </div>
+      </div>
+      <div class="row" data-c="security">
+        <div class="tag">Spring 2026 · Security</div>
+        <div>
+          <h3>Cryptographic Engineering Challenges</h3>
+          <p>Hands-on pwn.college work in CSE 539, Applied Cryptography: attacking weak block cipher modes, padding oracles and hash constructions to recover plaintexts and keys.</p>
+          <ul class="chips"><li>AES</li><li>SHA-256</li><li>HMAC</li><li>Padding oracles</li></ul>
+        </div>
+      </div>
+      <div class="row" data-c="software">
+        <div class="tag">Spring 2026 · Software</div>
+        <div>
+          <h3>Planning Poker Aide</h3>
+          <p>A team requirements and architecture project for a Planning Poker product aimed at enterprise-scale development, using SAFe 6.0. We derived functional and non-functional requirements, built an enterprise backlog from epics down to stories, kept traceability between them, and ran risk and value engineering analyses. The architecture accounts for security through role-based access control. CSE 563.</p>
+          <ul class="chips"><li>SAFe 6.0</li><li>UML</li><li>Use cases</li><li>Traceability</li><li>RBAC</li></ul>
+        </div>
+      </div>
+      <div class="row" data-c="software data">
+        <div class="tag">Spring 2026 · Software</div>
+        <div>
+          <h3>Effort Logger Analysis</h3>
+          <p>An individual project on collecting, analyzing and displaying effort data, and on where existing effort-logging tools fall short at enterprise scale. It showed how historical data and context-aware measurement give better baselines for effort estimates. CSE 563.</p>
+          <ul class="chips"><li>Data-driven estimation</li><li>Statistical reasoning</li></ul>
+        </div>
+      </div>
+      <div class="row" data-c="data">
+        <div class="tag">Spring 2026 · Data</div>
+        <div>
+          <h3>MapReduce and Distributed Queries</h3>
+          <p>Implemented classic MapReduce programs such as word count, large aggregations and distributed joins, and studied how queries split across machines. The focus was on splitting, mapping, shuffling and reducing while keeping network communication low. CSE 511.</p>
+          <ul class="chips"><li>MapReduce</li><li>Hadoop concepts</li><li>Distributed joins</li></ul>
+        </div>
+      </div>
+      <div class="row" data-c="data">
+        <div class="tag">B.Tech · Data</div>
+        <div>
+          <h3>Blooming Database</h3>
+          <p>A relational schema for a store selling flowers, cakes and chocolates, with eight tables covering customers, orders, shopping carts, payments and products. Queries use inner joins, COUNT and SUM aggregates, and subqueries, such as finding customers whose order total is above the overall average.</p>
+          <ul class="chips"><li>SQL</li><li>Schema design</li><li>Joins</li><li>Subqueries</li></ul>
+        </div>
+      </div>
+      <div class="row" data-c="mobile software">
+        <div class="tag">2023 · Mobile</div>
+        <div>
+          <h3>Part-Time Job Finder</h3>
+          <p>A two-person undergraduate team project with separate panels for job seekers and recruiters. I worked on the frontend. The app is built in Flutter on a Node.js and Express backend with MongoDB.</p>
+          <ul class="chips"><li>Flutter</li><li>Node.js</li><li>Express</li><li>MongoDB</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="sec-head"><h2>Experience</h2></div>
+    <div class="job">
+      <div class="when">Dec 2023 – Apr 2024<br>Surat, India</div>
+      <div>
+        <h3>Android Development Intern</h3>
+        <p class="org">Escrow Infotech</p>
+        <ul>
+          <li>Built the BabyCam Android prototype on my own, from concept to a working release, in Kotlin with MVVM and Jetpack Compose.</li>
+          <li>Connected two devices peer to peer over Wi-Fi Direct, with device discovery, live video streaming over UDP sockets, and recording to local storage.</li>
+          <li>Handled camera, location and storage permissions with error handling for denied requests, and shut the server down cleanly without crashing the app.</li>
+          <li>Tested across Android devices and helped the wider team find bugs before release.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="job">
+      <div class="when">Feb 2026 – Present<br>Mesa, Arizona</div>
+      <div>
+        <h3>Student Worker, Director's Office</h3>
+        <p class="org">Arizona State University, The Polytechnic School</p>
+        <ul>
+          <li>Run the front desk for the Director's office as the main contact for visitors, calls and mail.</li>
+          <li>Process purchases and catering forms in ASU's Financial Management System and keep supply inventory stocked.</li>
+          <li>Coordinate venue requests and event logistics, including agendas, attendance lists and name badges.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="sec-head"><h2>Skills</h2></div>
+    <div class="cols">
+      <div><h3>Languages</h3><p>C++20, Python, Java, Kotlin, SQL, Scala (intermediate)</p></div>
+      <div><h3>Machine learning</h3><p>PyTorch, scikit-learn, pandas, NumPy, MTCNN, FaceNet</p></div>
+      <div><h3>Data and cloud</h3><p>Apache Spark, Hadoop and MapReduce, PostgreSQL, MongoDB, AWS (EC2, S3, SQS, Lambda, IoT Greengrass), Docker</p></div>
+      <div><h3>Systems</h3><p>Custom memory allocation, cache-aware data structures, AddressSanitizer, UBSan, CMake</p></div>
+      <div><h3>Engineering practice</h3><p>FastAPI, Javalin, JUnit 5, JaCoCo, UML, Git, Agile and Scrum, requirements engineering</p></div>
+      <div><h3>Mobile</h3><p>Android, Jetpack Compose, MVVM</p></div>
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="sec-head"><h2>Education and certifications</h2></div>
+    <div class="cols">
+      <div>
+        <div class="edu-item">
+          <h4>MS, Computer Science</h4>
+          <p class="meta">Arizona State University · Expected May 2027 · GPA 3.78</p>
+          <p>Cloud Computing, Advanced Data Structures and Algorithms, Foundations of Software Engineering, Data Processing at Scale, Applied Cryptography, Software Requirements and Specifications.</p>
+        </div>
+        <div class="edu-item">
+          <h4>B.Tech, Information Technology</h4>
+          <p class="meta">Dharmsinh Desai University, Gujarat · 2020–2024 · CPI 7.34</p>
+          <p>Data structures and algorithms, databases, operating systems, networks, software engineering, and distributed computing.</p>
+        </div>
+      </div>
+      <ul class="certs">
+        <li>The Complete Android 14 &amp; Kotlin Development Masterclass<span>Udemy · Sep 2024</span></li>
+        <li>Artificial Intelligence Course, grade A+<span>Rinex Organization, Skill India / NSDC · Sep 2023</span></li>
+        <li>AWS Academy Graduate, Machine Learning Foundations<span>Amazon Web Services</span></li>
+        <li>AWS Academy Graduate, Cloud Foundations<span>Amazon Web Services</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Jayati Ghori · 2026</span>
+    <a href="https://github.com/Jghori1" target="_blank" rel="noopener">github.com/Jghori1</a>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  document.getElementById('theme-toggle').addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') === 'dark' ||
+      (!root.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+  });
+
+  var buttons = document.querySelectorAll('.filters button');
+  var rows = document.querySelectorAll('#rows .row');
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var f = b.getAttribute('data-f');
+      buttons.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      rows.forEach(function (r) {
+        var cats = (r.getAttribute('data-c') || '').split(' ');
+        r.hidden = !(f === 'all' || cats.indexOf(f) !== -1);
+      });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
